@@ -1,3 +1,6 @@
 require_relative '../config/environment'
 
-puts "hello world"
+#initializing a new class obect instance from CLI.rb
+
+cli = CommandLineInterface.new
+cli.greet
