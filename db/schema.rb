@@ -27,9 +27,11 @@ ActiveRecord::Schema.define(version: 3) do
   end
 
   create_table "pt_sessions", force: :cascade do |t|
+    t.string "day"
+    t.string "time"
     t.integer "duration"
-    t.integer "athletes_id"
-    t.integer "coaches_id"
+    t.integer "athlete_id"
+    t.integer "coach_id"
   end
 
 end
