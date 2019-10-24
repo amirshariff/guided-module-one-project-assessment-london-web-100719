@@ -41,7 +41,6 @@ class CommandLineInterface
             else
                 login_fail
             end
-            #binding.pry
         end
     end
 
@@ -63,61 +62,55 @@ class CommandLineInterface
         
 
     def pt_book
+        puts "Let's book your PT session! please indicate your preffered day"
         choose_day
-
-        #PTSession.where(athlete_id: 
-
     end 
 
     def choose_day 
-        puts "Let's book your PT session! please indicate your preffered day"
-        #puts "Day:"
-        #day = gets.chomp
         @day_input = @prompt.select("Day:", %w(Monday Tuesday Wednesday Thursday Friday Saturday Sunday))
-        puts "Here are all our available sessions on #{@day_input}:"
         @chosen_session = PTSession.where(day: @day_input, athlete_id: 1)
-        tp @chosen_session, "day", "time", "duration"
-        book_time
+            if @chosen_session[0] != nil
+                puts "Here are all our available sessions on #{@day_input}:"
+                tp @chosen_session, "day", "time", "duration"
+                book_time
+
+            elsif @chosen_session[0] == nil
+        
+                puts "Sorry, there are no more availble sessions on #{@day_input}"
+                menu
+            end
     end
+
 
     def book_time
-        puts "Please specify your desired time slot"
-        @time_slot = @prompt.select("Time:", @chosen_session.map {|session| session.time })
-        
-        # binding.pry 
-
-        #time_slot = gets.chomp
-        # @time_slot = @prompt.select("Day:") do |menu|
-        #     menu.choice '08:00'
-        #     menu.choice '12:00'
-        #     menu.choice '17:00'
-        # end
-            
-        @chosen_session = PTSession.where(day: @day_input,time: @time_slot)
-        #where return an array with the instance whereas find_by returns the instance by itself
-        athlete = Athlete.find_by_email(@athlete)
-        session_coach = @chosen_session.pluck(:coach_id)
-        #binding.pry
-        session_coach = session_coach[0]
-        session_coach = Coach.find(session_coach).first_name
-        @chosen_session.update athlete: @athlete
-        puts "Great! you're booked for your PT session at #{@time_slot} on #{@day_input} with coach #{session_coach}"
-        #binding.pry
-        menu
+            puts "Please specify your desired time slot"
+            @time_slot = @prompt.select("Time:", @chosen_session.map {|session| session.time })
+            @chosen_session = PTSession.where(day: @day_input,time: @time_slot)
+            #where return an array with the instance whereas find_by returns the instance by itself
+            athlete = Athlete.find_by_email(@athlete)
+            session_coach = @chosen_session.pluck(:coach_id)
+            session_coach = session_coach[0]
+            session_coach = Coach.find(session_coach).first_name
+            @chosen_session.update athlete: @athlete
+            puts "Great! you're booked for your PT session at #{@time_slot} on #{@day_input} with coach #{session_coach}"
+            menu
     end
+
 
     def update_session
         puts "Please select another session time if you can't make your original booking"
         puts "Original booking:"
         tp @booking, "day", "time", "duration"
+        puts "Which booking would you like to change?"
+        booking = @booking.pluck(:day)
+        booking_input = @prompt.select("Day:", booking)
+        booking = PTSession.where(day: booking_input, athlete_id: @athlete.id)
+        booking.update athlete_id: 1
         puts  "Other availabilities:"
-        @chosen_session = PTSession.where(day: @day_input, athlete_id: 1)
-        @time_slot = @prompt.select("Time:", @chosen_session.map {|session| session.time })
+        choose_day
         #@chosen_session.update athlete_id: 1
         #davecastro@gmail.com
         #@chosen_session not defined because when update session chosen in menu it skips choose day method and chosen_session remains undefined.
-
-
     end
 
     def logout?
@@ -131,8 +124,6 @@ class CommandLineInterface
                 menu
             elsif logout == 'Logout'
                 @athlete = nil
-                #binding.pry
-                #return "You have been logged out"
                 puts "You have been logged out"
                 greet
             else 
@@ -148,7 +139,7 @@ class CommandLineInterface
     #end
 
     def show_sessions
-        @booking = PTSession.find_by(athlete_id: @athlete.id)
+        @booking = PTSession.where(athlete_id: @athlete.id)
         if  @booking != nil
             puts "Here are your scheduled sessions:"
             tp @booking, "day", "time", "duration"
@@ -183,7 +174,7 @@ class CommandLineInterface
             else 
                 return
             end
-            end
+        end
     end
 
     # def session_selection
@@ -202,6 +193,26 @@ class CommandLineInterface
     
 
     def cancel_session
+        
+        if @booking[0] != nil
+
+            puts "Please select the booking you would like to cancel"
+            puts "Original booking:"
+            tp @booking, "day", "time", "duration"
+            puts "Which booking would you like to cancel?"
+            booking = @booking.pluck(:day)
+            booking_input = @prompt.select("Day:", booking)
+            booking = PTSession.where(day: booking_input, athlete_id: @athlete.id)
+            booking_to_cancel = PTSession.find_by(day: booking_input, athlete_id: @athlete.id)
+            booking_to_cancel.destroy
+            puts "Your booking has been cancelled. Sorry you couldn't make it"
+            menu
+
+        elsif @booking[0] == nil
+            
+            puts "Sorry, there are no bookings to cancel"
+            menu
+        end
     end 
 
 
@@ -214,6 +225,7 @@ class CommandLineInterface
         end
 
         if menu_selection == "Book a session"
+            #binding.pry
             pt_book
         elsif menu_selection == "Logout"
             logout?
