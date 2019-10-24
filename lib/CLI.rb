@@ -10,10 +10,21 @@ class CommandLineInterface
 
     def greet
 
-        input = @prompt.select("Welcome to MYBOX! Please enter your details to login or sign up and book your personal training session.", %w(sign_up login))
+        input = @prompt.select("Welcome to MYBOX! Please enter your details to login or sign up and book your personal training session.", ["Sign Up", "Login", "Delete Account", "Exit"])
         
-        if  input == "sign_up"
-            puts 'Full Name:'
+        if  input == "Sign Up"
+            register
+        elsif input == "Login"
+            login_greet
+        elsif input == "Delete Account"
+            delete_athlete
+        else
+            return    
+        end
+    end
+
+    def register
+        puts 'Full Name:'
             name = gets.chomp
             full_name = name.split
             first_name = full_name[0]
@@ -31,18 +42,46 @@ class CommandLineInterface
             @athlete = Athlete.create_athlete(@first_name, @last_name, age, @email) 
             successful_register
 
-        else
-            puts "Please provide your registered email:"
+    end
+
+    def login_greet
+        puts "Please provide your registered email:"
             athlete_email = gets.chomp
             @athlete = Athlete.find_email(athlete_email)
+            verify
+    end 
 
-            if @athlete != nil
-                successful_login
-            else
-                login_fail
-            end
+    def verify
+        if @athlete != nil
+            successful_login
+        else
+            login_fail
         end
     end
+
+    def verify_delete
+        puts "Please provide your registered email:"
+        athlete_email = gets.chomp
+        @athlete = Athlete.find_email(athlete_email)
+        if  @athlete != nil
+            puts "Account holder: #{@athlete.first_name}"
+        else
+            check_fail
+            verify_delete
+        end
+    end
+
+
+
+    def check_fail
+        input = @prompt.select("Sorry, doesn't look like that email is registered with us. Would you like to try again or exit?", ["Try Again", "Exit"])
+        if input == "Try Again"
+            delete_athlete
+        else
+            greet
+        end
+    end
+
 
     def login_fail
         puts "Oops! looks like you put in the wrong email or are not registered with us."
@@ -59,6 +98,18 @@ class CommandLineInterface
         puts "You have sucessfuly registered #{@athlete.first_name}!"
         main_menu
     end
+
+    def delete_athlete
+        verify_delete
+        input = @prompt.select("Are you sure you would like to delete your account?", ["Yes", "No"])
+
+        if input == "Yes"
+            @athlete.destroy
+            greet
+        else
+            greet
+        end
+    end 
         
 
     def pt_book
@@ -205,8 +256,8 @@ class CommandLineInterface
             booking = PTSession.find_booking(booking_input, @athlete.id)
             #booking returns the array of the booking 
             booking_to_cancel = PTSession.find_book_inst(booking_input, @athlete.id)
-            #booking_to_cancel returns theex instance outside the array
-            booking_to_cancel.destroy
+            #booking_to_cancel returns the instance outside the array
+            booking_to_cancel.update athlete_id: 1
             puts "Your booking has been cancelled. Sorry you couldn't make it"
             main_menu
 
@@ -239,16 +290,3 @@ class CommandLineInterface
     end
 
 end
-
-
-
-#If registered then do not log in datatbase 
-#time slot selecting does not get removed once session is booked 
-# no coach association to booking in database
-#create method for menu to select CRUD
-#method to lookup booked PT in db then be able to select via menu to update or delete
-#create update and delete method for menu
-#logout + @athlete = nil and redirect to greet
-#refactor chunky if statements like in greet
-#database calls (using where/activerec) should be in Class like PTSession
-

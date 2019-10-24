@@ -12,6 +12,4 @@ class Athlete < ActiveRecord::Base
     Athlete.find_by(email: email)
    end
 
-
-
 end 
