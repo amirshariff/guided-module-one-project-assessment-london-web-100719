@@ -7,5 +7,11 @@ class Athlete < ActiveRecord::Base
     def self.create_athlete(first_name, last_name, age, email)
         Athlete.create(first_name: first_name, last_name: last_name, age: age, email: email)
     end 
+    
+   def self.find_email(email)
+    Athlete.find_by(email: email)
+   end
+
+
 
 end 
