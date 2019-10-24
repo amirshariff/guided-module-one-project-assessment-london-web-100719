@@ -191,7 +191,7 @@ class CommandLineInterface
 
     # end
 
-    
+    ## change cancel session to non destroy and change athlete.id back to one. Maybe destroy athlete login???
 
     def cancel_session
         #booking_inst = PTSession.find_book_inst(@athlete.id)
