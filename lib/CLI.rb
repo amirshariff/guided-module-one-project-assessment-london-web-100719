@@ -25,30 +25,30 @@ class CommandLineInterface
 
     def register
         puts 'Full Name:'
-            name = gets.chomp
-            full_name = name.split
-            first_name = full_name[0]
-            last_name = full_name[1]
-            @first_name = first_name
-            @last_name = last_name
-            #gets full name input and chomps off new line. Then first name and last name are seperated by whitespace using split.
-            #First name and last name are 2 seperate elements in an array and they are respectively assaigned to variables 
-            puts 'Age:'
-            age = gets.chomp.to_i
-
-            puts 'Email:'
-            @email = gets.chomp
-            #instantiates a new athlete instance and provides name, age, email as arguments and saves it to the database
-            @athlete = Athlete.create_athlete(@first_name, @last_name, age, @email) 
-            successful_register
-
+        name = gets.chomp
+        full_name = name.split
+        first_name = full_name[0]
+        last_name = full_name[1]
+        @first_name = first_name
+        @last_name = last_name
+        #gets full name input and chomps off new line. Then first name and last name are seperated by whitespace using split.
+        #First name and last name are 2 seperate elements in an array and they are respectively assaigned to variables 
+        puts 'Age:'
+        age = gets.chomp.to_i
+        
+        puts 'Email:'
+        @email = gets.chomp
+        #instantiates a new athlete instance and provides name, age, email as arguments and saves it to the database
+        @athlete = Athlete.create_athlete(@first_name, @last_name, age, @email) 
+        successful_register
+        
     end
 
     def login_greet
         puts "Please provide your registered email:"
-            athlete_email = gets.chomp
-            @athlete = Athlete.find_email(athlete_email)
-            verify
+        athlete_email = gets.chomp
+        @athlete = Athlete.find_email(athlete_email)
+        verify
     end 
 
     def verify
@@ -105,10 +105,9 @@ class CommandLineInterface
 
         if input == "Yes"
             @athlete.destroy
-            greet
-        else
-            greet
+            puts "Your account has been deleted"
         end
+        return 
     end 
         
 
@@ -134,17 +133,17 @@ class CommandLineInterface
 
 
     def book_time
-            puts "Please specify your desired time slot"
-            @time_slot = @prompt.select("Time:", @chosen_session.map {|session| session.time })
-            @chosen_session = PTSession.find_availabilites_time(@day_input, @time_slot)
-            #where return an array with the instance whereas find_by returns the instance by itself
-            athlete = Athlete.find_email(@athlete)
-            session_coach = @chosen_session.pluck(:coach_id)
-            session_coach = session_coach[0]
-            session_coach = Coach.find(session_coach).first_name
-            @chosen_session.update athlete: @athlete
-            puts "Great! you're booked for your PT session at #{@time_slot} on #{@day_input} with coach #{session_coach}"
-            main_menu
+        puts "Please specify your desired time slot"
+        @time_slot = @prompt.select("Time:", @chosen_session.map {|session| session.time })
+        @chosen_session = PTSession.find_availabilites_time(@day_input, @time_slot)
+        #where return an array with the instance whereas find_by returns the instance by itself
+        athlete = Athlete.find_email(@athlete)
+        session_coach = @chosen_session.pluck(:coach_id)
+        session_coach = session_coach[0]
+        session_coach = Coach.find(session_coach).first_name
+        @chosen_session.update athlete: @athlete
+        puts "Great! you're booked for your PT session at #{@time_slot} on #{@day_input} with coach #{session_coach}"
+        main_menu
     end
 
 
@@ -229,20 +228,7 @@ class CommandLineInterface
         end
     end
 
-    # def session_selection
-    #     if @selection == "Change a session"
-    #         change a session
-    #     elsif @selection == "Cancel a session"
-    #         cancel_session
-    #     elsif @selection == "Menu"
-    #         menu
-    #     elsif @selection == "Logout"
-    #         logout
-    #     end
 
-    # end
-
-    ## change cancel session to non destroy and change athlete.id back to one. Maybe destroy athlete login???
 
     def cancel_session
         #booking_inst = PTSession.find_book_inst(@athlete.id)

@@ -9,4 +9,5 @@ gem "require_all"
 gem "faker"
 gem "table_print"
 gem 'tty-prompt'
+gem 'pastel'
 
